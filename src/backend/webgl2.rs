@@ -4,9 +4,7 @@ use crate::{
     widgets::hyperlink::HYPERLINK_MODIFIER,
     CursorShape,
 };
-use beamterm_renderer::{
-    mouse::*, select, CellData, GlyphEffect, SelectionMode, Terminal as Beamterm, Terminal,
-};
+use beamterm_renderer::{mouse::*, select, CellData, FontStyle, GlyphEffect, SelectionMode, Terminal as Beamterm, Terminal};
 use bitvec::prelude::BitVec;
 use compact_str::CompactString;
 use ratatui::{
@@ -16,11 +14,13 @@ use ratatui::{
     prelude::Backend,
     style::{Color, Modifier},
 };
-use std::{cell::RefCell, io::Result as IoResult, mem::swap, rc::Rc};
+use std::{cell::RefCell, io, io::Result as IoResult, mem::swap, rc::Rc};
 use web_sys::{wasm_bindgen::JsCast, window, Element};
 
 /// Re-export beamterm's atlas data type. Used by [`WebGl2BackendOptions::font_atlas`].
 pub use beamterm_renderer::FontAtlasData;
+use ratatui::backend::ClearType;
+use crate::error::Error::WebGl2Error;
 
 // Labels used by the Performance API
 const SYNC_TERMINAL_BUFFER_MARK: &str = "sync-terminal-buffer";
@@ -597,6 +597,8 @@ impl WebGl2Backend {
 }
 
 impl Backend for WebGl2Backend {
+    type Error = io::Error;
+
     // Populates the buffer with the *updated* cell content.
     fn draw<'a, I>(&mut self, content: I) -> IoResult<()>
     where
@@ -679,6 +681,13 @@ impl Backend for WebGl2Backend {
     fn set_cursor_position<P: Into<Position>>(&mut self, position: P) -> IoResult<()> {
         self.cursor_position = Some(position.into());
         Ok(())
+    }
+
+    fn clear_region(&mut self, clear_type: ClearType) -> Result<(), Self::Error> {
+        match clear_type {
+            ClearType::All => self.clear(),
+            _ => Err(Self::Error::other("only ClearType::All is supported in WebGl2Backend")),
+        }
     }
 }
 

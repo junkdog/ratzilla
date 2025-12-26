@@ -1,3 +1,4 @@
+use std::io;
 use bitvec::{bitvec, prelude::BitVec};
 use ratatui::layout::Rect;
 use std::io::Result as IoResult;
@@ -17,6 +18,7 @@ use ratatui::{
     prelude::Backend,
     style::{Color, Modifier},
 };
+use ratatui::backend::ClearType;
 use web_sys::{
     js_sys::{Boolean, Map},
     wasm_bindgen::{JsCast, JsValue},
@@ -425,6 +427,8 @@ impl CanvasBackend {
 }
 
 impl Backend for CanvasBackend {
+    type Error = io::Error;
+
     // Populates the buffer with the given content.
     fn draw<'a, I>(&mut self, content: I) -> IoResult<()>
     where
@@ -536,6 +540,10 @@ impl Backend for CanvasBackend {
         }
         self.cursor_position = Some(new_pos);
         Ok(())
+    }
+
+    fn clear_region(&mut self, clear_type: ClearType) -> Result<(), Self::Error> {
+        todo!()
     }
 }
 
