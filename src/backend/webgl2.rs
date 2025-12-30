@@ -4,7 +4,7 @@ use crate::{
     widgets::hyperlink::HYPERLINK_MODIFIER,
     CursorShape,
 };
-use beamterm_renderer::{mouse::*, select, CellData, FontStyle, GlyphEffect, SelectionMode, Terminal as Beamterm, Terminal};
+use beamterm_renderer::{mouse::*, select, CellData, GlyphEffect, SelectionMode, Terminal as Beamterm, Terminal};
 use bitvec::prelude::BitVec;
 use compact_str::CompactString;
 use ratatui::{
@@ -20,7 +20,6 @@ use web_sys::{wasm_bindgen::JsCast, window, Element};
 /// Re-export beamterm's atlas data type. Used by [`WebGl2BackendOptions::font_atlas`].
 pub use beamterm_renderer::FontAtlasData;
 use ratatui::backend::ClearType;
-use crate::error::Error::WebGl2Error;
 
 // Labels used by the Performance API
 const SYNC_TERMINAL_BUFFER_MARK: &str = "sync-terminal-buffer";

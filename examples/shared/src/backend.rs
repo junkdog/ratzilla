@@ -7,7 +7,7 @@ use ratzilla::backend::dom::DomBackendOptions;
 use ratzilla::backend::webgl2::WebGl2BackendOptions;
 use ratzilla::{CanvasBackend, DomBackend, WebGl2Backend};
 use ratzilla::ratatui::{Terminal, TerminalOptions};
-use ratzilla::ratatui::backend::Backend;
+use ratzilla::ratatui::backend::{Backend, ClearType};
 use crate::fps;
 use crate::utils::inject_backend_footer;
 
@@ -79,6 +79,8 @@ impl RatzillaBackend {
 }
 
 impl Backend for RatzillaBackend {
+    type Error = io::Error;
+
     fn draw<'a, I>(&mut self, content: I) -> io::Result<()>
     where
         I: Iterator<Item = (u16, u16, &'a ratzilla::ratatui::buffer::Cell)>,
@@ -164,6 +166,10 @@ impl Backend for RatzillaBackend {
             RatzillaBackend::WebGl2(backend) => backend.window_size(),
         }
     }
+
+    fn clear_region(&mut self, _clear_type: ClearType) -> Result<(), Self::Error> {
+        Ok(())
+    }
 }
 
 /// Backend wrapper that automatically tracks FPS by recording frames on each flush.
@@ -196,6 +202,8 @@ impl From<RatzillaBackend> for FpsTrackingBackend {
 }
 
 impl Backend for FpsTrackingBackend {
+    type Error = io::Error;
+
     fn draw<'a, I>(&mut self, content: I) -> io::Result<()>
     where
         I: Iterator<Item = (u16, u16, &'a ratzilla::ratatui::buffer::Cell)>,
@@ -245,6 +253,10 @@ impl Backend for FpsTrackingBackend {
 
     fn window_size(&mut self) -> io::Result<ratzilla::ratatui::backend::WindowSize> {
         self.inner.window_size()
+    }
+
+    fn clear_region(&mut self, _clear_type: ClearType) -> Result<(), Self::Error> {
+        Ok(())
     }
 }
 

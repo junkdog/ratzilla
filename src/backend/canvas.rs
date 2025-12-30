@@ -542,7 +542,7 @@ impl Backend for CanvasBackend {
         Ok(())
     }
 
-    fn clear_region(&mut self, clear_type: ClearType) -> Result<(), Self::Error> {
+    fn clear_region(&mut self, _clear_type: ClearType) -> Result<(), Self::Error> {
         todo!()
     }
 }
