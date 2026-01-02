@@ -249,10 +249,10 @@ fn draw_charts(frame: &mut Frame, app: &mut App, area: Rect) {
 
 fn draw_text(frame: &mut Frame, area: Rect) {
     let text = vec![
-        text::Line::from("This is a paragraph with several lines. You can change style your text the way you want"),
+        text::Line::from("😀This is a paragraph with several lines. You can change style your text the way you want"),
         text::Line::from(""),
         text::Line::from(vec![
-            Span::from("For example: "),
+            Span::from("For example: 文🚀"),
             Span::styled("under", Style::default().fg(Color::LightRed)),
             Span::raw(" "),
             Span::styled("the", Style::default().fg(Color::LightGreen)),
@@ -269,7 +269,7 @@ fn draw_text(frame: &mut Frame, area: Rect) {
             Span::styled("wrap", Style::default().add_modifier(Modifier::REVERSED)),
             Span::raw(" your "),
             Span::styled("text", Style::default().add_modifier(Modifier::UNDERLINED)),
-            Span::raw(".")
+            Span::raw(". 中")
         ]),
         text::Line::from(
             "One more thing is that it should display unicode characters: 10€"

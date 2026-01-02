@@ -36,8 +36,7 @@ pub struct WebGl2BackendOptions {
     size: Option<(u32, u32)>,
     /// Fallback glyph to use for characters not in the font atlas.
     fallback_glyph: Option<CompactString>,
-    /// Override the default font atlas.
-    font_atlas: Option<FontAtlasData>,
+    font_atlas: AtlasKind,
     /// The canvas padding color.
     canvas_padding_color: Option<Color>,
     /// The cursor shape.
@@ -101,7 +100,15 @@ impl WebGl2BackendOptions {
 
     /// Sets a custom font atlas to use for rendering.
     pub fn font_atlas(mut self, atlas: FontAtlasData) -> Self {
-        self.font_atlas = Some(atlas);
+        self.font_atlas = AtlasKind::Static(Some(atlas));
+        self
+    }
+    
+    pub fn dynamic_font_atlas(mut self, font_family: &[&'static str], font_size: f32) -> Self {
+        self.font_atlas = AtlasKind::Dynamic {
+            font_size,
+            font_family: font_family.to_vec(),
+        };
         self
     }
 
@@ -145,6 +152,21 @@ impl WebGl2BackendOptions {
     pub fn enable_console_debug_api(mut self) -> Self {
         self.console_debug_api = true;
         self
+    }
+}
+
+#[derive(Debug)]
+enum AtlasKind {
+    Static(Option<FontAtlasData>),
+    Dynamic {
+        font_size: f32,
+        font_family: Vec<&'static str>,
+    },
+}
+
+impl Default for AtlasKind {
+    fn default() -> Self {
+        AtlasKind::Static(None)
     }
 }
 
@@ -576,8 +598,8 @@ impl WebGl2Backend {
 
         let beamterm = Beamterm::builder(canvas)
             .canvas_padding_color(options.get_canvas_padding_color())
-            .fallback_glyph(options.fallback_glyph.as_ref().unwrap_or(&" ".into()))
-            .font_atlas(options.font_atlas.take().unwrap_or_default());
+            .fallback_glyph(options.fallback_glyph.as_ref().unwrap_or(&" ".into()));
+
 
         let beamterm = if options.default_mouse_handler {
             beamterm.default_mouse_input_handler(SelectionMode::Block, true)
@@ -589,6 +611,14 @@ impl WebGl2Backend {
             beamterm.enable_debug_api()
         } else {
             beamterm
+        };
+
+        let beamterm = match &options.font_atlas {
+            AtlasKind::Static(atlas_data) => {
+                beamterm.font_atlas(atlas_data.clone().unwrap_or_default())
+            }
+            AtlasKind::Dynamic { font_family, font_size } =>
+                beamterm.dynamic_font_atlas(font_family, *font_size)
         };
 
         Ok(beamterm.build()?)

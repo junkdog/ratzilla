@@ -13,6 +13,7 @@ use examples_shared::backend::{BackendType, MultiBackendBuilder};
 use ratzilla::event::KeyCode;
 use ratzilla::WebRenderer;
 use ratzilla::{backend::canvas::CanvasBackendOptions, backend::webgl2::WebGl2BackendOptions};
+use ratzilla::backend::webgl2::FontAtlasData;
 
 mod app;
 
@@ -26,6 +27,8 @@ fn main() -> Result<()> {
     let canvas_options = CanvasBackendOptions::new().size((1600, 900));
 
     let webgl2_options = WebGl2BackendOptions::new()
+        // .font_atlas(FontAtlasData::default())
+        .dynamic_font_atlas(&["Hack"], 14.940)
         .measure_performance(true)
         .enable_console_debug_api()
         .enable_mouse_selection()
