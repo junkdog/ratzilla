@@ -17,7 +17,6 @@ checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 [[package]]
 name = "beamterm-data"
 version = "0.10.0"
-source = "git+https://github.com/junkdog/beamterm?branch=dynamic-font-atlas#09d4b735837c9c1ca922806711c100cfe663c10b"
 dependencies = [
  "compact_str",
  "miniz_oxide",
@@ -26,16 +25,13 @@ dependencies = [
 [[package]]
 name = "beamterm-renderer"
 version = "0.10.0"
-source = "git+https://github.com/junkdog/beamterm?branch=dynamic-font-atlas#09d4b735837c9c1ca922806711c100cfe663c10b"
 dependencies = [
  "beamterm-data",
- "bitvec",
  "compact_str",
  "console_error_panic_hook",
  "emojis",
  "js-sys",
  "lru",
- "once_cell",
  "thiserror",
  "unicode-width",
  "wasm-bindgen",

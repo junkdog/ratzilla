@@ -139,19 +139,19 @@ impl WebGl2BackendOptions {
         self
     }
 
-    /// Gets the canvas padding color, defaulting to black if not set.
-    fn get_canvas_padding_color(&self) -> u32 {
-        self.canvas_padding_color
-            .map(|c| to_rgb(c, 0x000000))
-            .unwrap_or(0x000000)
-    }
-
     /// Enables debug API during terminal creation.
     ///
     /// The debug api is accessible from the browser console under `window.__beamterm_debug`.
     pub fn enable_console_debug_api(mut self) -> Self {
         self.console_debug_api = true;
         self
+    }
+
+    /// Gets the canvas padding color, defaulting to black if not set.
+    fn get_canvas_padding_color(&self) -> u32 {
+        self.canvas_padding_color
+            .map(|c| to_rgb(c, 0x000000))
+            .unwrap_or(0x000000)
     }
 }
 
