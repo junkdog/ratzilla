@@ -4,7 +4,7 @@ use crate::{
     widgets::hyperlink::HYPERLINK_MODIFIER,
     CursorShape,
 };
-use beamterm_renderer::{mouse::*, select, CellData, GlyphEffect, SelectionMode, Terminal as Beamterm, Terminal};
+use beamterm_renderer::{mouse::*, select, CellData, GlyphEffect, Terminal as Beamterm, Terminal};
 use bitvec::prelude::BitVec;
 use compact_str::CompactString;
 use ratatui::{
@@ -18,7 +18,7 @@ use std::{cell::RefCell, io, io::Result as IoResult, mem::swap, rc::Rc};
 use web_sys::{wasm_bindgen::JsCast, window, Element};
 
 /// Re-export beamterm's atlas data type. Used by [`WebGl2BackendOptions::font_atlas`].
-pub use beamterm_renderer::FontAtlasData;
+pub use beamterm_renderer::{FontAtlasData, SelectionMode};
 use ratatui::backend::ClearType;
 
 // Labels used by the Performance API
@@ -44,7 +44,7 @@ pub struct WebGl2BackendOptions {
     /// Hyperlink click callback.
     hyperlink_callback: Option<HyperlinkCallback>,
     /// Whether to use beamterm's internal mouse handler for selection.
-    default_mouse_handler: bool,
+    clipboard_selection: Option<SelectionMode>,
     /// Measure performance using the `performance` API.
     measure_performance: bool,
     /// Enable console debugging and introspection API.
@@ -103,18 +103,26 @@ impl WebGl2BackendOptions {
         self.font_atlas = AtlasKind::Static(Some(atlas));
         self
     }
-    
-    pub fn dynamic_font_atlas(mut self, font_family: &[&'static str], font_size: f32) -> Self {
+
+    /// Sets a dynamic font atlas with the specified font family and size.
+    pub fn dynamic_font_atlas(mut self, font_family: &[&str], font_size: f32) -> Self {
         self.font_atlas = AtlasKind::Dynamic {
             font_size,
-            font_family: font_family.to_vec(),
+            font_family: font_family.iter().map(|s| CompactString::from(*s)).collect(),
         };
         self
     }
 
     /// Enables block-based mouse selection with automatic copy to clipboard on selection.
+    #[deprecated(note = "use `mouse_selection` instead", since = "0.3.0")]
     pub fn enable_mouse_selection(mut self) -> Self {
-        self.default_mouse_handler = true;
+        self.clipboard_selection = Some(SelectionMode::Block);
+        self
+    }
+
+    /// Enables block-based mouse selection with automatic copy to clipboard on selection.
+    pub fn mouse_selection(mut self, mode: SelectionMode) -> Self {
+        self.clipboard_selection = Some(mode);
         self
     }
 
@@ -160,7 +168,7 @@ enum AtlasKind {
     Static(Option<FontAtlasData>),
     Dynamic {
         font_size: f32,
-        font_family: Vec<&'static str>,
+        font_family: Vec<CompactString>,
     },
 }
 
@@ -180,12 +188,18 @@ impl Default for AtlasKind {
 ///
 /// WebGL2 is supported in all modern browsers (Chrome 56+, Firefox 51+, Safari 15+).
 ///
-/// ## Font Atlas Limitation
+/// ## Font Atlas Modes
 ///
-/// [`WebGl2Backend`] uses prebuilt font atlases for performance. Characters not in the atlas
-/// will display as ` `. Use [`CanvasBackend`] if you need dynamic Unicode/emoji support.
+/// [`WebGl2Backend`] supports two font atlas modes:
 ///
-/// [`CanvasBackend`]: crate::backend::canvas::CanvasBackend
+/// - **Static atlas** ([`font_atlas`](WebGl2BackendOptions::font_atlas)): Uses a prebuilt
+///   atlas for maximum performance and consistent rendering across clients. Limited to
+///   glyphs included at build time; missing characters render as
+///   [WebGl2BackendOptions::fallback_glyph].
+///
+/// - **Dynamic atlas** ([`dynamic_font_atlas`](WebGl2BackendOptions::dynamic_font_atlas)):
+///   Rasterizes glyphs on demand with full Unicode/emoji support. Slightly higher latency
+///   on cache misses, and glyph availability depends on fonts installed on the client.
 ///
 /// # Performance Measurement
 ///
@@ -601,8 +615,8 @@ impl WebGl2Backend {
             .fallback_glyph(options.fallback_glyph.as_ref().unwrap_or(&" ".into()));
 
 
-        let beamterm = if options.default_mouse_handler {
-            beamterm.default_mouse_input_handler(SelectionMode::Block, true)
+        let beamterm = if let Some(mode) = options.clipboard_selection {
+            beamterm.default_mouse_input_handler(mode, true)
         } else {
             beamterm
         };
@@ -617,8 +631,10 @@ impl WebGl2Backend {
             AtlasKind::Static(atlas_data) => {
                 beamterm.font_atlas(atlas_data.clone().unwrap_or_default())
             }
-            AtlasKind::Dynamic { font_family, font_size } =>
-                beamterm.dynamic_font_atlas(font_family, *font_size)
+            AtlasKind::Dynamic { font_family, font_size } => {
+                let font_family: Vec<&str> = font_family.iter().map(|s| s.as_str()).collect();
+                beamterm.dynamic_font_atlas(&font_family, *font_size)
+            }
         };
 
         Ok(beamterm.build()?)
@@ -635,7 +651,7 @@ impl Backend for WebGl2Backend {
     {
         // we only update when we have new cell data or if the mouse selection
         // handler is enabled (otherwise, we fail to update the visualized selection).
-        if content.size_hint().1 != Some(0) || self.options.default_mouse_handler {
+        if content.size_hint().1 != Some(0) || self.options.clipboard_selection.is_some() {
             self.update_grid(content)?;
         }
 
