@@ -114,14 +114,13 @@ impl WebGl2BackendOptions {
     }
 
     /// Enables block-based mouse selection with automatic copy to clipboard on selection.
-    #[deprecated(note = "use `mouse_selection` instead", since = "0.3.0")]
-    pub fn enable_mouse_selection(mut self) -> Self {
-        self.clipboard_selection = Some(SelectionMode::Block);
-        self
+    #[deprecated(note = "use `enable_copy_on_mouse_selection` instead", since = "0.3.0")]
+    pub fn enable_mouse_selection(self) -> Self {
+        self.enable_copy_on_mouse_selection(SelectionMode::default())
     }
 
-    /// Enables block-based mouse selection with automatic copy to clipboard on selection.
-    pub fn mouse_selection(mut self, mode: SelectionMode) -> Self {
+    /// ...
+    pub fn enable_copy_on_mouse_selection(mut self, mode: SelectionMode) -> Self {
         self.clipboard_selection = Some(mode);
         self
     }
