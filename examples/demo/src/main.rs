@@ -26,9 +26,11 @@ fn main() -> Result<()> {
     // Create backend with explicit size like main branch (1600x900)
     let canvas_options = CanvasBackendOptions::new().size((1600, 900));
 
+    let atlas = FontAtlasData::from_binary(include_bytes!("../font.atlas")).unwrap();
+
     let webgl2_options = WebGl2BackendOptions::new()
-        // .font_atlas(FontAtlasData::default())
-        .dynamic_font_atlas(&["Hack"], 14.940)
+        .font_atlas(atlas)
+        // .dynamic_font_atlas(&["Hack"], 14.940)
         .measure_performance(true)
         .enable_console_debug_api()
         .enable_mouse_selection()

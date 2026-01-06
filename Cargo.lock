@@ -17,8 +17,6 @@ checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 [[package]]
 name = "beamterm-data"
 version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08288df33ab747535a13d40ddbbc9d79ded776e89dba2ea535963af88e515ef1"
 dependencies = [
  "compact_str",
  "miniz_oxide",
@@ -27,8 +25,6 @@ dependencies = [
 [[package]]
 name = "beamterm-renderer"
 version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0547da1dffabea4355cef27308898db51d3b5052ca1204366af41a0fe54172c2"
 dependencies = [
  "beamterm-data",
  "compact_str",
@@ -36,6 +32,7 @@ dependencies = [
  "emojis",
  "js-sys",
  "lru",
+ "rustc-hash",
  "thiserror",
  "unicode-width",
  "wasm-bindgen",
@@ -442,6 +439,12 @@ dependencies = [
  "thiserror",
  "web-sys",
 ]
+
+[[package]]
+name = "rustc-hash"
+version = "2.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "357703d41365b4b27c590e3ed91eabb1b663f07c4c084095e60cbed4362dff0d"
 
 [[package]]
 name = "rustc-std-workspace-core"
