@@ -16,7 +16,8 @@ checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 
 [[package]]
 name = "beamterm-data"
-version = "0.11.0"
+version = "0.12.0"
+source = "git+https://github.com/junkdog/beamterm#75c4cbdf7b8526d42e369a72a26542695429a691"
 dependencies = [
  "compact_str",
  "miniz_oxide",
@@ -24,9 +25,11 @@ dependencies = [
 
 [[package]]
 name = "beamterm-renderer"
-version = "0.11.0"
+version = "0.12.0"
+source = "git+https://github.com/junkdog/beamterm#75c4cbdf7b8526d42e369a72a26542695429a691"
 dependencies = [
  "beamterm-data",
+ "bitflags",
  "compact_str",
  "console_error_panic_hook",
  "emojis",

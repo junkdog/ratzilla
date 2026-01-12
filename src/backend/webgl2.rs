@@ -361,7 +361,8 @@ impl WebGl2Backend {
         // Update mouse handler dimensions if it exists
         if let Some(mouse_handler) = &mut self.hyperlink_mouse_handler {
             let (cols, rows) = self.beamterm.terminal_size();
-            mouse_handler.update_dimensions(cols, rows);
+            let (cell_width, cell_height) = self.beamterm.cell_size();
+            mouse_handler.update_metrics(cols, rows, cell_width, cell_height);
         }
 
         // clear any hyperlink cells; we'll get them in the next draw call
@@ -615,7 +616,10 @@ impl WebGl2Backend {
 
 
         let beamterm = if let Some(mode) = options.clipboard_selection {
-            beamterm.default_mouse_input_handler(mode, true)
+            let opts = MouseSelectOptions::new()
+                .selection_mode(mode)
+                .trim_trailing_whitespace(true);
+            beamterm.mouse_selection_handler(opts)
         } else {
             beamterm
         };
