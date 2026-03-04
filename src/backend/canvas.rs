@@ -10,6 +10,7 @@ use crate::{
         },
         utils::*,
     },
+    cell_sized::CellSized,
     error::Error,
     event::{KeyEvent, MouseEvent},
     render::WebEventHandler,
@@ -435,6 +436,20 @@ impl CanvasBackend {
         self.canvas.context.restore();
 
         Ok(())
+    }
+}
+
+impl CellSized for CanvasBackend {
+    fn cell_size_px(&self) -> (f64, f64) {
+        let dpr = web_sys::window()
+            .map(|w| w.device_pixel_ratio())
+            .unwrap_or(1.0);
+
+        (CELL_WIDTH * dpr, CELL_HEIGHT * dpr)
+    }
+
+    fn cell_size_css_px(&self) -> (f64, f64) {
+        (CELL_WIDTH, CELL_HEIGHT)
     }
 }
 

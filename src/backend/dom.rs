@@ -21,6 +21,7 @@ use crate::{
         },
         utils::*,
     },
+    cell_sized::CellSized,
     error::Error,
     event::{KeyEvent, MouseEvent},
     render::WebEventHandler,
@@ -262,6 +263,20 @@ impl DomBackend {
             self.grid.append_child(&pre)?;
         }
         Ok(())
+    }
+}
+
+impl CellSized for DomBackend {
+    fn cell_size_px(&self) -> (f64, f64) {
+        let dpr = web_sys::window()
+            .map(|w| w.device_pixel_ratio())
+            .unwrap_or(1.0);
+
+        (self.cell_size.0 * dpr, self.cell_size.1 * dpr)
+    }
+
+    fn cell_size_css_px(&self) -> (f64, f64) {
+        self.cell_size
     }
 }
 

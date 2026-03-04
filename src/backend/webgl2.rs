@@ -4,6 +4,7 @@ use crate::{
         event_callback::{EventCallback, KEY_EVENT_TYPES},
         utils::*,
     },
+    cell_sized::CellSized,
     error::Error,
     event::{KeyEvent, MouseEvent},
     render::WebEventHandler,
@@ -699,6 +700,18 @@ impl WebGl2Backend {
         let beamterm = beamterm.auto_resize_canvas_css(!options.disable_auto_css_resize);
 
         Ok(beamterm.build()?)
+    }
+}
+
+impl CellSized for WebGl2Backend {
+    fn cell_size_px(&self) -> (f64, f64) {
+        let (w, h) = self.beamterm.cell_size();
+        (w as f64, h as f64)
+    }
+
+    fn cell_size_css_px(&self) -> (f64, f64) {
+        let (w, h) = self.beamterm.cell_size();
+        (w as f64, h as f64)
     }
 }
 
